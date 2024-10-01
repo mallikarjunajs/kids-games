@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Two Numbers</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+        }
+        table {
+            margin: 20px auto;
+            border-collapse: collapse;
+            width: 80%;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            font-size: 18px;
+        }
+        #score {
+            font-size: 24px;
+            font-weight: bold;
+            padding: 10px;
+            margin: 20px;
+            background-color: #007BFF;
+            color: white;
+            border-radius: 5px;
+            display: inline-block;
+        }
+        .correct {
+            background-color: lightgreen;
+        }
+        .incorrect {
+            background-color: lightcoral;
+        }
+        .number-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: inline-block;
+            line-height: 50px;
+            margin: 5px;
+            background-color: #f0f0f0;
+            cursor: pointer;
+            font-size: 20px;
+            transition: background-color 0.2s;
+        }
+        .number-circle:hover {
+            background-color: #ddd;
+        }
+        .section1-circle {
+            background-color: #FFCCCB; /* Light Red */
+        }
+        .section2-circle {
+            background-color: #ADD8E6; /* Light Blue */
+        }
+        .plus-sign {
+            font-size: 40px;
+            margin: 0 10px;
+            line-height: 50px; /* Align with circles */
+        }
+        .row-even {
+            background-color: #f9f9f9;
+        }
+        .row-odd {
+            background-color: #e9e9e9;
+        }
+        .reset-button {
+            padding: 10px 20px;
+            font-size: 18px;
+            color: white;
+            background-color: #28a745; /* Green color */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-bottom: 20px;
+        }
+        .reset-button:hover {
+            background-color: #218838; /* Darker green on hover */
+        }
+    </style>
+</head>
+<body>
+
+<h1>Add Two Numbers!</h1>
+<div id="score">Score: 0</div>
+<table>
+    <thead>
+        <tr>
+            <th>Section 1</th>
+            <th></th>
+            <th>Section 2</th>
+            <th>Your Answer</th>
+        </tr>
+    </thead>
+    <tbody id="questions-container"></tbody>
+</table>
+<button class="reset-button" onclick="resetGame()">Reset</button>
+
+<script>
+    let score = 0;
+    const questions = [];
+    const maxQuestions = 5;
+
+    function generateQuestion() {
+        const num1 = Math.floor(Math.random() * 9) + 1; // Random number between 1 and 9
+        const num2 = Math.floor(Math.random() * (10 - num1)) + 1; // Ensure num2 is between 1 and (10 - num1)
+        questions.push({ num1, num2, correctAnswer: num1 + num2 });
+    }
+
+    function displayQuestions() {
+        const container = document.getElementById("questions-container");
+        container.innerHTML = '';
+
+        questions.forEach((q, index) => {
+            const rowClass = index % 2 === 0 ? 'row-even' : 'row-odd';
+            const row = `<tr class="${rowClass}">
+                <td>${generateNumberCircle(q.num1, 'section1-circle')}</td>
+                <td class="plus-sign">+</td>
+                <td>${generateNumberCircle(q.num2, 'section2-circle')}</td>
+                <td>${generateNumberCircles(index)}</td>
+            </tr>`;
+            container.innerHTML += row;
+        });
+    }
+
+    function generateNumberCircle(num, className) {
+        return `<div class="number-circle ${className}">${num}</div>`;
+    }
+
+    function generateNumberCircles(index) {
+        let circlesHTML = '';
+        for (let i = 2; i <= 10; i++) { // Range from 2 to 20 (for possible sums)
+            circlesHTML += `<div class="number-circle" onclick="submitAnswer(${index}, ${i}, this)">${i}</div>`;
+        }
+        return circlesHTML;
+    }
+
+    function submitAnswer(index, userAnswer, element) {
+        const correctAnswer = questions[index].correctAnswer;
+        const answerCell = document.getElementById("questions-container").rows[index].cells[3];
+
+        // Clear previous feedback
+        answerCell.classList.remove('correct', 'incorrect');
+
+        if (userAnswer === correctAnswer) {
+            score++;
+            answerCell.classList.add('correct');
+        } else {
+            answerCell.classList.add('incorrect');
+        }
+
+        // Disable all number circles in the row
+        const circles = answerCell.getElementsByClassName('number-circle');
+        for (const circle of circles) {
+            circle.style.pointerEvents = 'none'; // Disable clicking
+            circle.style.opacity = '0.5'; // Make it look inactive
+        }
+
+        document.getElementById("score").innerText = "Score: " + score;
+    }
+
+    function resetGame() {
+        score = 0;
+        questions.length = 0;
+        document.getElementById("score").innerText = "Score: 0";
+        for (let i = 0; i < maxQuestions; i++) {
+            generateQuestion();
+        }
+        displayQuestions();
+    }
+
+    // Initialize the game
+    for (let i = 0; i < maxQuestions; i++) {
+        generateQuestion();
+    }
+    displayQuestions();
+</script>
+
+</body>
+</html>
+

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn Directions</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f7fc;
+        }
+
+        h1 {
+            color: #4a90e2;
+            font-size: 2.5em;
+        }
+
+        #gameCanvas {
+            background-color: #fff;
+            border: 2px solid #333;
+            margin-bottom: 20px;
+            transition: background-color 0.5s; /* Smooth color transition */
+        }
+
+        #instructions {
+            font-size: 1.5em;
+            color: #333;
+            background-color: #e1f5fe;
+            padding: 15px;
+            border-radius: 8px;
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        #scoreDisplay {
+            font-size: 1.5em;
+            color: #388e3c;
+            margin-bottom: 20px;
+        }
+
+        /* Button styles */
+        .direction-button {
+            width: 100px;
+            height: 100px;
+            font-size: 1.5em;
+            margin: 20px; /* Increased margin for more spacing */
+            border: none;
+            border-radius: 10px;
+            background-color: #4a90e2;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .direction-button:hover {
+            background-color: #357ABD; /* Darker blue on hover */
+        }
+
+        /* Diamond shape arrangement */
+        #buttonContainer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        #diamond {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        #upDown {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #downButton {
+            margin-top: -20px; /* Position Down button below */
+        }
+
+        #leftRight {
+            display: flex;
+            justify-content: center;
+            margin-top: -40px; /* Adjusted for better spacing */
+        }
+
+        #leftButton {
+            margin-right: 40px; /* Position Left button to the left */
+        }
+
+        #rightButton {
+            margin-left: 40px; /* Position Right button to the right */
+        }
+    </style>
+</head>
+<body>
+    <h1>Learn Directions</h1>
+    <canvas id="gameCanvas" width="600" height="400"></canvas>
+    <div id="scoreDisplay">Score: 0</div>
+    <div id="instructions">Press the correct direction button!</div>
+
+<div id="buttonContainer">
+        <div id="upDown">
+            <button id="upButton" class="direction-button">Up</button>
+            
+        </div>
+        <div id="leftRight">
+            <button id="leftButton" class="direction-button">Left</button>
+            <button id="rightButton" class="direction-button">Right</button>
+        </div><div id="upDown">
+            
+            <button id="downButton" class="direction-button">Down</button>
+        </div>
+    
+    </div>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        // Game Variables
+        let player = { x: 300, y: 200, size: 50 };
+        let currentDirection = "";
+        let score = 0;
+
+        // Directions
+        const directions = ["left", "right", "up", "down"];
+
+        // Draw player
+        function drawPlayer() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "blue";
+            ctx.fillRect(player.x, player.y, player.size, player.size);
+        }
+
+        // Change the background color of the canvas
+        function changeCanvasColor(color, duration) {
+            canvas.style.backgroundColor = color;
+            setTimeout(() => {
+                canvas.style.backgroundColor = "#fff"; // Reset to white
+            }, duration);
+        }
+
+        // Update instruction and speak the direction
+        function updateInstruction() {
+            currentDirection = directions[Math.floor(Math.random() * directions.length)];
+            const instructionText = `Move ${currentDirection}!`;
+
+            // Display the instruction text
+            document.getElementById("instructions").innerText = instructionText;
+
+            // Read the direction aloud using the Web Speech API
+            const utterance = new SpeechSynthesisUtterance(instructionText);
+            utterance.pitch = 1.2;
+            utterance.rate = 1;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // Speak the result
+        function speakResult(message) {
+            const utterance = new SpeechSynthesisUtterance(message);
+            utterance.pitch = 1.2;
+            utterance.rate = 1;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // Move the player based on direction with boundary checks
+        function movePlayer(direction) {
+            switch (direction) {
+                case "left":
+                    if (player.x > 0) player.x -= 50; // Check left boundary
+                    break;
+                case "right":
+                    if (player.x < canvas.width - player.size) player.x += 50; // Check right boundary
+                    break;
+                case "up":
+                    if (player.y > 0) player.y -= 50; // Check upper boundary
+                    break;
+                case "down":
+                    if (player.y < canvas.height - player.size) player.y += 50; // Check lower boundary
+                    break;
+            }
+            drawPlayer();
+        }
+
+        // Update the score on the screen
+        function updateScore() {
+            document.getElementById("scoreDisplay").innerText = `Score: ${score}`;
+        }
+
+        // Handle button clicks
+        function handleDirection(direction) {
+            if (currentDirection === direction) {
+                movePlayer(direction);
+                score += 1;  // Update score by 1
+                changeCanvasColor("green", 1000);  // Change canvas to green
+                speakResult("Correct!");  // Announce correct answer
+                updateInstruction();  // Generate a new direction
+            } else {
+                score -= 1;  // Decrease score by 1
+                changeCanvasColor("red", 1000);  // Change canvas to red for wrong key
+                speakResult("Wrong direction!");  // Announce wrong answer
+                updateInstruction();  // Generate a new direction
+            }
+            updateScore();  // Update the score display
+        }
+
+        // Add event listeners to buttons
+        document.getElementById("upButton").addEventListener("click", () => handleDirection("up"));
+        document.getElementById("downButton").addEventListener("click", () => handleDirection("down"));
+        document.getElementById("leftButton").addEventListener("click", () => handleDirection("left"));
+        document.getElementById("rightButton").addEventListener("click", () => handleDirection("right"));
+
+        // Initial Game Setup
+        drawPlayer();
+        updateInstruction();
+    </script>
+</body>
+</html>
+

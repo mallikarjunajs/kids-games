@@ -10,7 +10,10 @@ const jsonData = [
  {"word":"dog", "image": "dog.png"},
  {"word":"bed", "image": "bed.png"},
  {"word":"can", "image": "can.jpg"},
- {"word":"box", "image": "box.png"}
+ {"word":"box", "image": "box.png"},
+ {"word":"ball", "image":"ball.png"},
+ {"word":"duck", "image":"duck.png"},
+ {"word":"bike", "image":"bike.png"}
 ];
 
 // Game Variables
