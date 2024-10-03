@@ -83,7 +83,7 @@
             height: 25px;
             background-color: black;
             border-radius: 50%;
-            margin: 8px; /* Add space around dots */
+            margin: 12px; /* Add space around dots */
         }
 
         .correct {
@@ -107,8 +107,24 @@
     </div>
 
     <script>
-        // Variables
-        const numbers = [2, 4, 7, 5, 9]; // Left column (randomly generated)
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function getUniqueRandomNumbers(count, min, max) {
+            const numbers = new Set();
+
+        // Generate unique random numbers
+        while (numbers.size < count) {
+            const randomNum = getRandomInt(min, max);
+            numbers.add(randomNum); // Add to set (duplicates are ignored)
+        }
+
+            return Array.from(numbers); // Convert the Set to an array
+        }
+
+        // Example usage: Generate 5 unique random numbers between 1 and 10
+        const numbers = getUniqueRandomNumbers(5, 1, 10);
         const balls = [...numbers].sort(() => 0.5 - Math.random()); // Shuffled for the right column
 
         const numbersColumn = document.getElementById("numbers-column");
