@@ -1,23 +1,76 @@
-<!DOCTYPE html>
+i<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Drag-and-Drop Game</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Games for Kids</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f8ff;
+            color: #333;
+        }
+        header {
+            background-color: #020802;
+            padding: 20px;
+            text-align: center;
+            color: white;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        main {
+            padding: 20px;
+        }
+        .age-section {
+            margin-bottom: 40px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .age-section h2 {
+            font-size: 1.8em;
+            color: #020802;
+        }
+        ul {
+            list-style-type: square;
+            padding-left: 20px;
+        }
+        ul li {
+            margin: 10px 0;
+            font-size: 1.2em;
+        }
+    </style>
 </head>
 <body>
 
-  <div class="container">
-    <h1>Match the Image with the Word!</h1>
-    <div class="game-area">
-      <div id="word-container"></div>
-      <div id="image-container"></div>
-    </div>
-    <p id="score">Score: 0</p>
-  </div>
+    <header>
+        <h1>Simple Games for Kids</h1>
+    </header>
 
-  <script src="script.js"></script>
+    <main>
+        <section class="age-section">
+            <h2>For Ages 2-3</h2>
+            <ul>
+                <li><a href="match_count/">Count and Match</a></li>
+            </ul>
+        </section>
+
+        <section class="age-section">
+            <h2>For Ages 3-5</h2>
+            <ul>
+                <li><a href="phonics/">Learn to Read (Read and Match)</a></li>
+                <li><a href="directions/">Learn Directions</a></li>
+                <li><a href="sum/">Learn Math - Addition</a></li>
+                <li><a href="sort/">Learn Math - Sorting</a></li>
+            </ul>
+        </section>
+    </main>
+
 </body>
 </html>
 
