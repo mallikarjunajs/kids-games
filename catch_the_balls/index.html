@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Raining Balls</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background-color: #f0f0f0;
+    }
+
+    #heading {
+      font-size: 32px;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+
+    #game-container {
+      position: relative;
+      width: 100vw;
+      height: 70vh;
+      background-color: lightblue;
+      border: 2px solid #000;
+      overflow: hidden;
+    }
+
+    #stick {
+      position: absolute;
+      bottom: 10px;
+      width: 100px;
+      height: 20px;
+      background-color: black;
+      left: calc(50% - 50px);
+    }
+
+    .ball {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background-color: black;
+    }
+
+    #score, #timer {
+      font-size: 24px;
+      margin-top: 10px;
+    }
+
+    #reset-button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    #popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 30px;
+      background-color: white;
+      border: 2px solid black;
+      text-align: center;
+      display: none;  /* Hidden by default */
+    }
+
+    #popup h2 {
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="heading">Raining Balls</div>
+
+  <div id="game-container">
+    <div id="stick"></div>
+  </div>
+  <div id="score">Score: 0</div>
+  <div id="timer">Time Left: 30s</div>
+  <button id="reset-button" onclick="resetGame()">Reset Game</button>
+
+  <div id="popup">
+    <h2>Game Over!</h2>
+    <p id="final-score">Your score: 0</p>
+    <button onclick="closePopup()">Close</button>
+  </div>
+
+  <script>
+    let stick = document.getElementById("stick");
+    let gameContainer = document.getElementById("game-container");
+    let scoreElement = document.getElementById("score");
+    let timerElement = document.getElementById("timer");
+    let resetButton = document.getElementById("reset-button");
+    let popup = document.getElementById("popup");
+    let finalScoreElement = document.getElementById("final-score");
+
+    let score = 0;
+    let gameTime = 30;  // 30 seconds timer
+    let stickSpeed = 10;
+    let ballSpeed = 3;
+    let ballIntervalTime = 1500;  // Less frequent ball generation
+    let stickMoveLeft = false;
+    let stickMoveRight = false;
+    let ballIntervals = [];
+    let gameInterval;
+
+    // Move the stick smoothly
+    document.addEventListener('keydown', (event) => {
+      if (event.key === "ArrowLeft") {
+        stickMoveLeft = true;
+      } else if (event.key === "ArrowRight") {
+        stickMoveRight = true;
+      }
+    });
+
+    document.addEventListener('keyup', (event) => {
+      if (event.key === "ArrowLeft") {
+        stickMoveLeft = false;
+      } else if (event.key === "ArrowRight") {
+        stickMoveRight = false;
+      }
+    });
+
+    function moveStick() {
+      let stickLeft = parseInt(window.getComputedStyle(stick).getPropertyValue("left"));
+      
+      if (stickMoveLeft && stickLeft > 0) {
+        stick.style.left = stickLeft - stickSpeed + "px";
+      } else if (stickMoveRight && stickLeft < (gameContainer.offsetWidth - stick.offsetWidth)) {
+        stick.style.left = stickLeft + stickSpeed + "px";
+      }
+    }
+
+    setInterval(moveStick, 20);  // Smooth movement
+
+    // Create and move balls
+    function createBall() {
+      let ball = document.createElement("div");
+      ball.classList.add("ball");
+      gameContainer.appendChild(ball);
+
+      // Random initial position for the ball at the top
+      ball.style.left = Math.random() * (gameContainer.offsetWidth - 20) + "px";
+      ball.style.top = "0px";
+
+      let ballFallInterval = setInterval(() => {
+        let ballTop = parseInt(ball.style.top);
+        ball.style.top = ballTop + ballSpeed + "px";
+
+        // Check if the ball has reached the stick
+        let ballLeft = parseInt(ball.style.left);
+        let stickLeft = parseInt(window.getComputedStyle(stick).getPropertyValue("left"));
+
+        if (ballTop + 20 >= gameContainer.offsetHeight - 30) {
+          if (ballLeft >= stickLeft && ballLeft <= stickLeft + stick.offsetWidth) {
+            score++;
+            scoreElement.innerText = "Score: " + score;
+            ball.remove();
+            clearInterval(ballFallInterval);
+          } else if (ballTop > gameContainer.offsetHeight) {
+            ball.remove();
+            clearInterval(ballFallInterval);
+          }
+        }
+      }, 50);
+
+      ballIntervals.push(ballFallInterval);
+    }
+
+    function startGame() {
+      score = 0;
+      scoreElement.innerText = "Score: 0";
+      gameTime = 30;
+      timerElement.innerText = "Time Left: 30s";
+      resetButton.disabled = true;
+      popup.style.display = 'none';  // Hide popup
+
+      // Start ball generation
+      gameInterval = setInterval(createBall, ballIntervalTime);
+
+      // Start timer countdown
+      let countdown = setInterval(() => {
+        gameTime--;
+        timerElement.innerText = "Time Left: " + gameTime + "s";
+        
+        if (gameTime <= 0) {
+          clearInterval(countdown);
+          clearInterval(gameInterval);
+          ballIntervals.forEach(interval => clearInterval(interval));  // Stop all ball movements
+          showPopup(score);  // Show custom popup
+          resetButton.disabled = false;
+        }
+      }, 1000);
+    }
+
+    function showPopup(finalScore) {
+      finalScoreElement.innerText = "Your score: " + finalScore;
+      popup.style.display = 'block';  // Show popup
+    }
+
+    function closePopup() {
+      popup.style.display = 'none';
+    }
+
+    function resetGame() {
+      // Clear all balls and reset game state
+      let balls = document.querySelectorAll('.ball');
+      balls.forEach(ball => ball.remove());
+
+      clearInterval(gameInterval);
+      ballIntervals.forEach(interval => clearInterval(interval));
+      ballIntervals = [];
+
+      startGame();
+    }
+
+    // Start the game when the page loads
+    window.onload = startGame;
+  </script>
+
+</body>
+</html>
+

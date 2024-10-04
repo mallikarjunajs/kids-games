@@ -7,14 +7,16 @@ const jsonData = [
  {"word":"bag", "image": "bag.png"},
  {"word":"mat", "image": "mat.png"},
  {"word":"cat", "image": "cat.png"},
- {"word":"dog", "image": "dog.png"},
- {"word":"bed", "image": "bed.png"},
+ // {"word":"dog", "image": "dog.png"},
+ // {"word":"bed", "image": "bed.png"},
  {"word":"star", "image": "star.png"},
  {"word":"fish", "image": "fish.png"},
  {"word":"box", "image": "box.png"},
  {"word":"ball", "image":"ball.png"},
  {"word":"duck", "image":"duck.png"},
- {"word":"bike", "image":"bike.png"}
+ {"word":"bike", "image":"bike.png"},
+ {"word":"door", "image":"door.png"},
+ {"word":"sock", "image":"sock.png"}
 ];
 
 // Game Variables
