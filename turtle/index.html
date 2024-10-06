@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turtle Food Game</title>
+    <style>
+        #game {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            font-family: Arial, sans-serif;
+            color: black;
+            text-align: center;
+        }
+
+        #grid {
+            display: grid;
+            grid-template-columns: repeat(4, 100px);
+            grid-template-rows: repeat(4, 100px);
+            gap: 2px;
+        }
+
+        .cell {
+            width: 100px;
+            height: 100px;
+            border: 2px solid black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            background-color: white;
+	    transform: scale(-1, 1);
+        }
+
+        #controls {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #controls .control-btn {
+            width: 50px;
+            height: 50px;
+            font-size: 1.5rem;
+            margin: 5px;
+        }
+
+        #win-popup {
+            display: none;
+            position: fixed;
+            top: 35%;
+            left: 50%;
+	    
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: #f0f0f0;
+            border: 3px solid green;
+            text-align: center;
+            font-size: 1.5rem;
+            z-index: 10;
+        }
+
+        .green-cell {
+            background-color: lightgreen !important;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Find me some food!</h1>
+    <div id="game">
+        <div id="grid">
+            <!-- 16 squares, represented as divs -->
+            <div class="cell" id="cell-0"></div>
+            <div class="cell" id="cell-1"></div>
+            <div class="cell" id="cell-2"></div>
+            <div class="cell" id="cell-3"></div>
+            <div class="cell" id="cell-4"></div>
+            <div class="cell" id="cell-5"></div>
+            <div class="cell" id="cell-6"></div>
+            <div class="cell" id="cell-7"></div>
+            <div class="cell" id="cell-8"></div>
+            <div class="cell" id="cell-9"></div>
+            <div class="cell" id="cell-10"></div>
+            <div class="cell" id="cell-11"></div>
+            <div class="cell" id="cell-12"></div>
+            <div class="cell" id="cell-13"></div>
+            <div class="cell" id="cell-14"></div>
+            <div class="cell" id="cell-15"></div>
+        </div>
+
+        <!-- Control buttons in a diamond shape -->
+        <div id="controls">
+            <button id="up" class="control-btn">↑</button><br>
+            <button id="left" class="control-btn">←</button>
+            <button id="right" class="control-btn">→</button><br>
+            <button id="down" class="control-btn">↓</button>
+        </div>
+
+        <!-- Custom pop-up when turtle reaches food -->
+        <div id="win-popup">
+            <p>Yum! That was awesome 🥬</p>
+            <button onclick="resetGame()">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Set the initial position and direction of the turtle
+        let turtlePosition = 12;  // Starting at bottom-left corner (cell 12)
+        let turtleDirection = '🐢';  // Default turtle facing left
+
+        // Turtle emojis facing left and right
+        const turtleLeft = '🐢';
+        const turtleRight = '🐢';  // Facing right, using the same emoji for simplicity
+
+        // Randomly place the food (lettuce 🥬)
+        let foodPosition = Math.floor(Math.random() * 16);
+        while (foodPosition === turtlePosition) {
+            foodPosition = Math.floor(Math.random() * 16);  // Ensure food is not at the starting position
+        }
+
+        // Place the turtle and food on the grid
+        function updateGrid() {
+            for (let i = 0; i < 16; i++) {
+                const cell = document.getElementById(`cell-${i}`);
+                cell.textContent = '';
+                cell.classList.remove('green-cell');
+            }
+            document.getElementById(`cell-${turtlePosition}`).textContent = turtleDirection;  // Turtle emoji
+            document.getElementById(`cell-${foodPosition}`).textContent = '🥬';  // Lettuce emoji
+        }
+
+        // Check if turtle reaches the food
+        function checkWin() {
+            if (turtlePosition === foodPosition) {
+                showWinPopup();
+                turnAllCellsGreen();
+		disableButtons();
+            }
+        }
+
+        // Handle movement of the turtle
+        function moveTurtle(direction) {
+            switch (direction) {
+                case 'up':
+                    if (turtlePosition > 3) turtlePosition -= 4;
+                    break;
+                case 'down':
+                    if (turtlePosition < 12) turtlePosition += 4;
+                    break;
+                case 'left':
+                    if (turtlePosition % 4 !== 0) {
+                        turtlePosition -= 1;
+                        turtleDirection = turtleLeft;  // Facing left
+                    }
+                    break;
+                case 'right':
+                    if (turtlePosition % 4 !== 3) {
+                        turtlePosition += 1;
+                        turtleDirection = turtleRight;  // Facing right
+                    }
+                    break;
+            }
+            updateGrid();
+            checkWin();
+        }
+
+        // Turn all grid cells green
+        function turnAllCellsGreen() {
+            for (let i = 0; i < 16; i++) {
+                document.getElementById(`cell-${i}`).classList.add('green-cell');
+            }
+        }
+
+        // Show the win popup
+        function showWinPopup() {
+            document.getElementById('win-popup').style.display = 'block';
+        }
+
+        // Hide the win popup
+        function hideWinPopup() {
+            document.getElementById('win-popup').style.display = 'none';
+        }
+	
+	// Disable control buttons
+        function disableButtons() {
+            document.getElementById('up').disabled = true;
+            document.getElementById('down').disabled = true;
+            document.getElementById('left').disabled = true;
+            document.getElementById('right').disabled = true;
+        }
+
+        // Reset the game
+        function resetGame() {
+            hideWinPopup();
+            turtlePosition = 12;
+            foodPosition = Math.floor(Math.random() * 16);
+            while (foodPosition === turtlePosition) {
+                foodPosition = Math.floor(Math.random() * 16);
+            }
+            turtleDirection = turtleLeft;
+            updateGrid();
+        }
+
+        // Initialize the game
+        updateGrid();
+
+        // Event listeners for buttons
+        document.getElementById('up').addEventListener('click', () => moveTurtle('up'));
+        document.getElementById('down').addEventListener('click', () => moveTurtle('down'));
+        document.getElementById('left').addEventListener('click', () => moveTurtle('left'));
+        document.getElementById('right').addEventListener('click', () => moveTurtle('right'));
+
+        // Add functionality for arrow keys
+        document.addEventListener('keydown', function(event) {
+            switch (event.key) {
+                case 'ArrowUp':
+                    moveTurtle('up');
+                    break;
+                case 'ArrowDown':
+                    moveTurtle('down');
+                    break;
+                case 'ArrowLeft':
+                    moveTurtle('left');
+                    break;
+                case 'ArrowRight':
+                    moveTurtle('right');
+                    break;
+            }
+        });
+
+    </script>
+
+</body>
+</html>
+
