@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alphabet Game</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            padding: 20px;  /* Ensures there's some space at the top of the page */
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 32px;
+            color: #333;
+        }
+
+        #start-btn, #reset-btn {
+            padding: 15px 30px;
+            font-size: 20px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        #reset-btn {
+            display: none;
+            background-color: #ff4c4c;
+        }
+
+        #grid {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .block {
+            width: 100px;
+            height: 100px;
+            background-color: #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 36px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        .block:hover {
+            background-color: #bbb;
+        }
+
+        #message {
+            margin-top: 20px;
+            font-size: 24px;
+            color: #333;
+        }
+
+        /* Custom popup for the end of game */
+        #popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            font-size: 24px;
+            border-radius: 10px;
+            z-index: 1000;
+        }
+
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+    </style>
+</head>
+<body>
+    <h1>Listen and Find the Letter</h1>
+    <div class="container">
+        <button id="start-btn">Start Game</button>
+        <button id="reset-btn">Reset Game</button>
+        <div id="grid">
+            <div class="block" id="block-1"></div>
+            <div class="block" id="block-2"></div>
+            <div class="block" id="block-3"></div>
+            <div class="block" id="block-4"></div>
+            <div class="block" id="block-5"></div>
+            <div class="block" id="block-6"></div>
+            <div class="block" id="block-7"></div>
+            <div class="block" id="block-8"></div>
+            <div class="block" id="block-9"></div>
+        </div>
+        <p id="message"></p>
+    </div>
+
+    <!-- Custom popup and overlay -->
+    <div id="overlay"></div>
+    <div id="popup">
+        <p>Well Done! You completed 5 rounds!</p>
+        <button id="close-popup-btn">Close</button>
+    </div>
+
+    <script>
+        const gridBlocks = document.querySelectorAll('.block');
+        const message = document.getElementById('message');
+        const startBtn = document.getElementById('start-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const popup = document.getElementById('popup');
+        const overlay = document.getElementById('overlay');
+        const closePopupBtn = document.getElementById('close-popup-btn');
+
+        let randomLetter = '';
+        let roundCount = 0;
+        const maxRounds = 5;
+        let availableLetters = 'abcdefghijklmnopqrstuvwxyz'.split('');
+        
+        function getRandomLetter() {
+            const randomIndex = Math.floor(Math.random() * availableLetters.length);
+            return availableLetters.splice(randomIndex, 1)[0];
+        }
+
+        function announce(message) {
+            const utterance = new SpeechSynthesisUtterance(message);
+            speechSynthesis.speak(utterance);
+        }
+
+        function startGame() {
+            roundCount = 0;
+            resetGameBoard();
+            fillBoardWithUniqueLetters();  // Fill the board once with unique letters
+            playRound();
+            message.textContent = "Select the letter you heard!";
+        }
+
+        function fillBoardWithUniqueLetters() {
+            // Clear availableLetters and refill it for a fresh game
+            availableLetters = 'abcdefghijklmnopqrstuvwxyz'.split('');
+            gridBlocks.forEach(block => {
+                const randomChar = getRandomLetter();
+                block.textContent = randomChar;
+                block.dataset.letter = randomChar;
+            });
+        }
+
+        function playRound() {
+            // Pick a random letter from the already filled board
+            const randomBlock = gridBlocks[Math.floor(Math.random() * gridBlocks.length)];
+            randomLetter = randomBlock.dataset.letter;
+
+            // Voice out the letter
+            announce(randomLetter);
+        }
+
+        function handleCorrectAnswer() {
+            roundCount++;
+            announce("Correct!");
+            message.textContent = "Correct!";
+
+            if (roundCount < maxRounds) {
+                setTimeout(playRound, 1500); // Go to next round after 1.5 seconds
+            } else {
+                showPopup();
+            }
+        }
+
+        function handleIncorrectAnswer() {
+            announce("Incorrect! Try again!");
+            message.textContent = "Incorrect! Try again!";
+        }
+
+        // Handle user click or touch
+        gridBlocks.forEach(block => {
+            block.addEventListener('click', function () {
+                if (block.dataset.letter === randomLetter) {
+                    handleCorrectAnswer();
+                } else {
+                    handleIncorrectAnswer();
+                }
+            });
+
+            block.addEventListener('touchstart', function () {
+                if (block.dataset.letter === randomLetter) {
+                    handleCorrectAnswer();
+                } else {
+                    handleIncorrectAnswer();
+                }
+            });
+        });
+
+        function showPopup() {
+            overlay.style.display = 'block';
+            popup.style.display = 'block';
+            resetBtn.style.display = 'inline-block'; // Show reset button after rounds
+        }
+
+        function hidePopup() {
+            overlay.style.display = 'none';
+            popup.style.display = 'none';
+        }
+
+        function resetGameBoard() {
+            message.textContent = "";
+            resetBtn.style.display = 'none';
+            gridBlocks.forEach(block => {
+                block.textContent = '';
+            });
+        }
+
+        // Start game button
+        startBtn.addEventListener('click', startGame);
+
+        // Reset game button
+        resetBtn.addEventListener('click', function() {
+            resetGameBoard();
+            startGame();
+        });
+
+        // Close popup button
+        closePopupBtn.addEventListener('click', hidePopup);
+    </script>
+</body>
+</html>
+
