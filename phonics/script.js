@@ -1,20 +1,21 @@
 // Sample JSON Data (Can be loaded from external file)
 const jsonData = [
-  { "word": "fox", "image": "fox.png" },
-  { "word": "car", "image": "car.jpg" },
-  { "word": "tap", "image": "tap.jpg" },
+ { "word": "fox", "image": "fox.png" },
+ { "word": "car", "image": "car.jpg" },
+ { "word": "tap", "image": "tap.jpg" },
  { "word": "bus", "image": "bus.png"},
  {"word":"bag", "image": "bag.png"},
  {"word":"mat", "image": "mat.png"},
  {"word":"cat", "image": "cat.png"},
- // {"word":"dog", "image": "dog.png"},
+ {"word":"dog", "image": "dog.png"},
  // {"word":"bed", "image": "bed.png"},
+ {"word":"rain", "image": "rain.png"},
  {"word":"star", "image": "star.png"},
  {"word":"fish", "image": "fish.png"},
- {"word":"box", "image": "box.png"},
+ // {"word":"box", "image": "box.png"},
  {"word":"ball", "image":"ball.png"},
  {"word":"duck", "image":"duck.png"},
- {"word":"bike", "image":"bike.png"},
+ {"word":"frog", "image":"frog.png"},
  {"word":"door", "image":"door.png"},
  {"word":"sock", "image":"sock.png"}
 ];

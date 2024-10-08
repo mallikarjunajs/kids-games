@@ -193,6 +193,15 @@
             document.getElementById('right').disabled = true;
         }
 
+	// Enable control buttons
+        function enableButtons() {
+            document.getElementById('up').disabled = false;
+            document.getElementById('down').disabled = false;
+            document.getElementById('left').disabled = false;
+            document.getElementById('right').disabled = false;
+        }
+       
+
         // Reset the game
         function resetGame() {
             hideWinPopup();
@@ -203,6 +212,7 @@
             }
             turtleDirection = turtleLeft;
             updateGrid();
+	    enableButtons();
         }
 
         // Initialize the game
