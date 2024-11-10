@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1, h2, h3 {
+            color: #333;
+        }
+
+        .balance, .total-cost {
+            margin: 20px 0;
+            font-size: 1.5em;
+        }
+
+        .shop-menu {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #ddd;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+            width: 80%;
+        }
+
+        .shop-menu button {
+            font-size: 1.5em;
+            padding: 20px 30px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .shop-menu button:hover {
+            background-color: #45a049;
+        }
+
+        .shop-menu button:active {
+            transform: scale(0.98);
+        }
+
+        .items-container {
+            border: 2px solid #ddd;
+            padding: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            background-color: #fff;
+            border-radius: 8px;
+            width: 80%;
+            margin: 20px 0;
+        }
+
+        .item {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 150px;
+            margin: 10px;
+            padding: 10px;
+            background-color: #fff;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .item button {
+            background-color: #f08080;
+            color: white;
+            cursor: pointer;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 8px;
+        }
+
+        .controls button {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        #basketItems {
+            border: 2px solid #666;
+            width: 250px;
+            padding: 10px;
+            background-color: #fff;
+            margin-top: 20px;
+            text-align: left;
+            position: absolute;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+        }
+
+        #popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 30px;
+            border: 2px solid #333;
+            border-radius: 10px;
+            text-align: center;
+            z-index: 10;
+        }
+
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 9;
+        }
+
+        .parent-tips-btn {
+            background-color: #ffcc80;
+            color: #333;
+            padding: 10px 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            margin-top: 20px;
+        }
+
+        .parent-tips-btn:hover {
+            background-color: #ffa726;
+            transform: scale(1.05);
+            color: #fff;
+        }
+
+        .parent-tips-btn:active {
+            transform: scale(0.98);
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .shop-menu button {
+            background-color: #fdd835;
+            color: white;
+            font-size: 2em;
+            border-radius: 10px;
+            width: 120px;
+            height: 120px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease;
+        }
+
+        .shop-menu button:hover {
+            background-color: #fbc02d;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Shopping Adventure!</h1>
+<h3>Select items wisely and stay within your budget!</h3>
+
+<div class="balance">Balance: €<span id="balance">0</span></div>
+
+<div class="shop-menu">
+    <button onclick="showItems('fruits')">🍎 Fruits</button>
+    <button onclick="showItems('toys')">🧸 Toys</button>
+    <button onclick="showItems('bakery')">🥖 Bakery</button>
+</div>
+
+<div id="itemsContainer" class="items-container" style="display: none;">
+    <h2>Items</h2>
+    <div id="shopItems"></div>
+    <button onclick="goBackToShops()">Back to Shops</button>
+</div>
+
+<h2>Your Basket</h2>
+<div id="basketItems">Basket is empty 🛒</div>
+<div class="total-cost">Total Cost: €<span id="totalCost">0</span></div>
+
+<div class="controls">
+    <button onclick="finishShopping()">Finish Shopping</button>
+</div>
+
+<!-- Custom popup for game over -->
+<div id="overlay"></div>
+<div id="popup">
+    <h2>Great Job!</h2>
+    <p>You’ve finished shopping within your budget.</p>
+    <button onclick="restartGame()">Play Again</button>
+</div>
+
+<!-- Parent Tips Button -->
+<button class="parent-tips-btn" onclick="showParentTips()">👨‍👩‍👧 Parent Tips</button>
+
+<!-- Parent Tips Pop-up -->
+<div id="parentTips" style="display: none;">
+    <h2>Parent Tips</h2>
+    <p>Help your child understand the importance of budgeting by asking them questions like:</p>
+    <ul>
+        <li>How much money do we have?</li>
+        <li>Can we afford this item?</li>
+        <li>What can we buy with the remaining balance?</li>
+    </ul>
+    <button onclick="closeParentTips()">Close</button>
+</div>
+
+<script>
+    const shops = {
+        fruits: [
+            { emoji: '🍎', price: 2, name: 'Apple' },
+            { emoji: '🍌', price: 1, name: 'Banana' },
+            { emoji: '🍇', price: 3, name: 'Grapes' },
+            { emoji: '🍉', price: 4, name: 'Watermelon' },
+            { emoji: '🍍', price: 5, name: 'Pineapple' }
+        ],
+        toys: [
+            { emoji: '🧸', price: 3, name: 'Teddy Bear' },
+            { emoji: '🚗', price: 2, name: 'Toy Car' },
+            { emoji: '🎈', price: 1, name: 'Balloon' },
+            { emoji: '🚀', price: 5, name: 'Rocket' },
+            { emoji: '🏀', price: 4, name: 'Basketball' }
+        ],
+        bakery: [
+            { emoji: '🥖', price: 2, name: 'Baguette' },
+            { emoji: '🍩', price: 3, name: 'Donut' },
+            { emoji: '🍞', price: 1, name: 'Bread' },
+            { emoji: '🍰', price: 5, name: 'Cake' },
+            { emoji: '🍪', price: 4, name: 'Cookie' }
+        ]
+    };
+
+    let balance, totalCost = 0;
+    let basket = [];
+
+    function initGame() {
+        balance = Math.floor(Math.random() * 4) + 7;
+        totalCost = 0;
+        basket = [];
+        document.getElementById("balance").innerText = balance;
+        document.getElementById("totalCost").innerText = totalCost;
+        document.getElementById("basketItems").innerHTML = 'Basket is empty 🛒';
+    }
+
+    function showItems(shop) {
+        document.getElementById("itemsContainer").style.display = "flex";
+        document.querySelector(".shop-menu").style.display = "none";
+        const selectedShop = shops[shop];
+        const itemsToDisplay = [];
+        
+        while (itemsToDisplay.length < 6) {
+            const item = selectedShop[Math.floor(Math.random() * selectedShop.length)];
+            if (!itemsToDisplay.includes(item)) itemsToDisplay.push(item);
+        }
+
+        const shopItemsDiv = document.getElementById("shopItems");
+        shopItemsDiv.innerHTML = '';
+        itemsToDisplay.forEach(item => {
+            const itemDiv = document.createElement("div");
+            itemDiv.classList.add('item');
+            itemDiv.innerHTML = `
+                <div>${item.emoji}</div>
+                <p>${item.name} - €${item.price}</p>
+                <button onclick="addItemToBasket('${item.name}', ${item.price}, '${item.emoji}')">Add to Basket</button>
+            `;
+            shopItemsDiv.appendChild(itemDiv);
+        });
+    }
+
+    function goBackToShops() {
+        document.getElementById("itemsContainer").style.display = "none";
+        document.querySelector(".shop-menu").style.display = "flex";
+    }
+
+    function addItemToBasket(name, price, emoji) {
+        if (totalCost + price <= balance) {
+            basket.push({ name, price, emoji });
+            totalCost += price;
+            updateDisplay();
+        } else {
+            alert("Not enough balance to buy this item!");
+        }
+    }
+
+    function updateDisplay() {
+        document.getElementById("balance").innerText = balance - totalCost;
+        document.getElementById("totalCost").innerText = totalCost;
+        
+        const basketDiv = document.getElementById("basketItems");
+        basketDiv.innerHTML = basket.length ? '' : 'Basket is empty 🛒';
+        
+        basket.forEach((item, index) => {
+            const itemDiv = document.createElement("div");
+            itemDiv.innerHTML = `${item.emoji} ${item.name} - €${item.price} <button onclick="removeFromBasket(${index})">Remove</button>`;
+            basketDiv.appendChild(itemDiv);
+        });
+    }
+
+    function removeFromBasket(index) {
+        const removedItem = basket.splice(index, 1)[0];
+        totalCost -= removedItem.price;
+        updateDisplay();
+    }
+
+    function finishShopping() {
+        if (totalCost <= balance) {
+            document.getElementById("popup").style.display = "block";
+            document.getElementById("overlay").style.display = "block";
+        } else {
+            alert("You have exceeded your balance!");
+        }
+    }
+
+    function restartGame() {
+        document.getElementById("popup").style.display = "none";
+        document.getElementById("overlay").style.display = "none";
+        initGame();
+        document.querySelector(".shop-menu").style.display = "flex";
+        document.getElementById("itemsContainer").style.display = "none";
+    }
+
+    function showParentTips() {
+        document.getElementById("parentTips").style.display = "block";
+        document.getElementById("overlay").style.display = "block";
+    }
+
+    function closeParentTips() {
+        document.getElementById("parentTips").style.display = "none";
+        document.getElementById("overlay").style.display = "none";
+    }
+
+    initGame();
+</script>
+
+</body>
+</html>
+
