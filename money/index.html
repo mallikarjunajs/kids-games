@@ -26,63 +26,39 @@
             font-size: 1.5em;
         }
 
-        .shop-menu {
+        .shop-menu, .items, #basketItems, .controls {
             display: flex;
-            justify-content: center;
-            gap: 20px;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
             margin: 20px 0;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            border: 2px solid #ddd;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            position: relative;
-            width: 80%;
         }
 
-        .shop-menu button {
-            font-size: 1.5em;
-            padding: 20px 30px;
-            background-color: #4caf50;
-            color: white;
+        .shop-menu button, .item, .controls button, .parent-tips-btn {
+            font-size: 1.2em;
+            padding: 10px 20px;
+            margin: 5px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s;
         }
 
-        .shop-menu button:hover {
-            background-color: #45a049;
-        }
-
-        .shop-menu button:active {
-            transform: scale(0.98);
-        }
-
-        .items-container {
-            border: 2px solid #ddd;
-            padding: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            justify-content: center;
-            background-color: #fff;
-            border-radius: 8px;
-            width: 80%;
-            margin: 20px 0;
+        .shop-menu button {
+            background-color: #4caf50;
+            color: white;
         }
 
         .item {
             display: flex;
             justify-content: center;
             align-items: center;
-            width: 150px;
-            margin: 10px;
+            width: 200px;
+            margin: 10px 0;
             padding: 10px;
             background-color: #fff;
             border: 2px solid #ddd;
             border-radius: 8px;
-            text-align: center;
         }
 
         .item button {
@@ -162,22 +138,24 @@
             box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
         }
 
-        .shop-menu button {
-            background-color: #fdd835;
-            color: white;
-            font-size: 2em;
-            border-radius: 10px;
-            width: 120px;
-            height: 120px;
+        .items-container {
+            border: 2px solid #ddd;
+            padding: 20px;
             display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
             justify-content: center;
-            align-items: center;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-            transition: background-color 0.3s ease;
+            background-color: #fff;
+            border-radius: 8px;
         }
 
-        .shop-menu button:hover {
-            background-color: #fbc02d;
+        .items-container h2 {
+            margin-bottom: 20px;
+        }
+
+        .item {
+            flex: 0 1 150px;
+            text-align: center;
         }
     </style>
 </head>
@@ -189,6 +167,7 @@
 <div class="balance">Balance: €<span id="balance">0</span></div>
 
 <div class="shop-menu">
+    <h2>Select a Shop</h2>
     <button onclick="showItems('fruits')">🍎 Fruits</button>
     <button onclick="showItems('toys')">🧸 Toys</button>
     <button onclick="showItems('bakery')">🥖 Bakery</button>
@@ -265,31 +244,22 @@
         basket = [];
         document.getElementById("balance").innerText = balance;
         document.getElementById("totalCost").innerText = totalCost;
-        document.getElementById("basketItems").innerHTML = 'Basket is empty 🛒';
+        document.getElementById("basketItems").innerText = "Basket is empty 🛒";
+        document.getElementById("shopItems").innerHTML = "";
     }
 
     function showItems(shop) {
-        document.getElementById("itemsContainer").style.display = "flex";
+        document.getElementById("itemsContainer").style.display = "block";
         document.querySelector(".shop-menu").style.display = "none";
-        const selectedShop = shops[shop];
-        const itemsToDisplay = [];
         
-        while (itemsToDisplay.length < 6) {
-            const item = selectedShop[Math.floor(Math.random() * selectedShop.length)];
-            if (!itemsToDisplay.includes(item)) itemsToDisplay.push(item);
-        }
-
-        const shopItemsDiv = document.getElementById("shopItems");
-        shopItemsDiv.innerHTML = '';
-        itemsToDisplay.forEach(item => {
+        const itemsDiv = document.getElementById("shopItems");
+        itemsDiv.innerHTML = '';
+        
+        shops[shop].forEach(item => {
             const itemDiv = document.createElement("div");
-            itemDiv.classList.add('item');
-            itemDiv.innerHTML = `
-                <div>${item.emoji}</div>
-                <p>${item.name} - €${item.price}</p>
-                <button onclick="addItemToBasket('${item.name}', ${item.price}, '${item.emoji}')">Add to Basket</button>
-            `;
-            shopItemsDiv.appendChild(itemDiv);
+            itemDiv.className = "item";
+            itemDiv.innerHTML = `${item.emoji} ${item.name} - €${item.price} <button onclick="addItemToBasket('${item.name}', ${item.price}, '${item.emoji}')">Add to Basket</button>`;
+            itemsDiv.appendChild(itemDiv);
         });
     }
 
