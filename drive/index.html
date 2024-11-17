@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Car Game</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: #ccc;
+      height: 100vh;
+    }
+    #header {
+      font-size: 36px;
+      font-weight: bold;
+      color: #222;
+      margin-bottom: 20px;
+      text-align: center;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    #header span {
+      color: #007bff;
+    }
+    #gameContainer {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    #gameCanvas {
+      background: #333;
+    }
+    #scoreBoard {
+      margin-left: 20px;
+      padding: 10px;
+      background: #fff;
+      border: 1px solid #000;
+      border-radius: 5px;
+    }
+    #popup {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+      border-radius: 10px;
+      display: none;
+      z-index: 10;
+    }
+    #popup button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #popup button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div id="header">🚗 <span>Drive Safe</span> 🚦</div>
+  <div id="gameContainer">
+    <canvas id="gameCanvas"></canvas>
+    <div id="scoreBoard">
+      <h2>Score: <span id="score">0</span></h2>
+    </div>
+    <div id="popup">
+      <h2>Game Over</h2>
+      <p>Your score: <span id="finalScore">0</span></p>
+      <button onclick="restartGame()">Restart</button>
+    </div>
+  </div>
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const scoreElement = document.getElementById("score");
+    const popup = document.getElementById("popup");
+    const finalScore = document.getElementById("finalScore");
+
+    canvas.width = 500;
+    canvas.height = 700;
+
+    const roadWidth = canvas.width / 2;
+    const laneWidth = roadWidth / 3;
+    const carSize = 40;
+    const obstacleSize = 40;
+    const lanes = [
+      (canvas.width - roadWidth) / 2 + laneWidth / 2,
+      (canvas.width - roadWidth) / 2 + laneWidth + laneWidth / 2,
+      (canvas.width - roadWidth) / 2 + 2 * laneWidth + laneWidth / 2,
+    ];
+
+    let carLane = 1;
+    let carY = canvas.height - 100;
+    let obstacles = [];
+    let obstacleSpeed = 2;
+    let score = 0;
+    let isGameOver = false;
+
+    const car = "🚗";
+    const cone = "🟠";
+
+    document.addEventListener("keydown", (e) => {
+      if (isGameOver) return;
+      if (e.key === "ArrowLeft" && carLane > 0) carLane--;
+      if (e.key === "ArrowRight" && carLane < 2) carLane++;
+    });
+
+    function createObstacle() {
+      const lane = Math.floor(Math.random() * 3);
+      obstacles.push({ lane, y: -obstacleSize });
+    }
+
+    function drawRoad() {
+      ctx.fillStyle = "#555";
+      ctx.fillRect((canvas.width - roadWidth) / 2, 0, roadWidth, canvas.height);
+
+      ctx.strokeStyle = "#fff";
+      ctx.setLineDash([20, 10]);
+      ctx.lineWidth = 2;
+
+      for (let i = 1; i <= 2; i++) {
+        const x = (canvas.width - roadWidth) / 2 + i * laneWidth;
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      }
+
+      ctx.setLineDash([]);
+    }
+
+    function drawCar() {
+      ctx.font = "30px Arial";
+      ctx.textAlign = "center";
+      const carX = lanes[carLane];
+      ctx.fillText(car, carX, carY);
+    }
+
+    function drawObstacles() {
+      ctx.font = "30px Arial";
+      ctx.textAlign = "center";
+      obstacles.forEach((obstacle) => {
+        const obstacleX = lanes[obstacle.lane];
+        ctx.fillText(cone, obstacleX, obstacle.y);
+      });
+    }
+
+    function moveObstacles() {
+      obstacles.forEach((obstacle) => (obstacle.y += obstacleSpeed));
+      if (obstacles.length && obstacles[0].y > canvas.height) {
+        obstacles.shift();
+        score++;
+        scoreElement.textContent = score;
+        if (score % 5 === 0) obstacleSpeed += 0.5;
+      }
+    }
+
+    function checkCollision() {
+      for (const obstacle of obstacles) {
+        const carX = lanes[carLane];
+        const obstacleX = lanes[obstacle.lane];
+        if (
+          obstacle.y + obstacleSize > carY &&
+          obstacle.y < carY + carSize &&
+          carX === obstacleX
+        ) {
+          endGame();
+        }
+      }
+    }
+
+    function endGame() {
+      isGameOver = true;
+      finalScore.textContent = score;
+      popup.style.display = "block";
+      cancelAnimationFrame(animationFrame);
+    }
+
+    function restartGame() {
+      popup.style.display = "none";
+      score = 0;
+      obstacleSpeed = 2;
+      obstacles = [];
+      scoreElement.textContent = score;
+      carLane = 1;
+      isGameOver = false;
+      gameLoop();
+    }
+
+    function gameLoop() {
+      if (isGameOver) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawRoad();
+      drawCar();
+      drawObstacles();
+      moveObstacles();
+      checkCollision();
+      animationFrame = requestAnimationFrame(gameLoop);
+    }
+
+    let animationFrame;
+    setInterval(() => {
+      if (!isGameOver) createObstacle();
+    }, 1500);
+    gameLoop();
+  </script>
+</body>
+</html>
+
